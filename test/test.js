@@ -1,25 +1,28 @@
-var assert = require( 'assert' );
-var rollup = require( 'rollup' );
-var typescriptPlugin = require( '..' );
+var assert = require('assert');
+var rollup = require('rollup');
+var typescriptPlugin = require('../dist/cjs/index').typescript;
 
-process.chdir( __dirname );
+process.chdir(__dirname);
 
-describe( 'rollup-plugin-typescript', function () {
-	it( 'runs code through typescript', function () {
-		return rollup.rollup({
-			entry: 'samples/basic/main.ts',
-			plugins: [ typescriptPlugin() ]
-		}).then( function ( bundle ) {
-			var generated = bundle.generate();
-			var code = generated.code;
+describe('rollup-plugin-typescript', function () {
+  it('runs code through typescript', function () {
+    return rollup.rollup({
+      entry: 'samples/basic/main.ts',
+      plugins: [typescriptPlugin()]
+    }).then(function (bundle) {
+      var generated = bundle.generate();
+      var code = generated.code;
 
-			console.log( 'code', code )
+      console.log('code', code)
 
-			var fn = new Function( 'module', code );
-			var module = {};
-			fn( module );
+      var fn = new Function('exports', code);
+      var module = {};
+      fn(module);
 
-			assert.equal( module.exports, '<h1>Hello, world!</h1>', code );
-		});
-	});
+      var greeter = new module.Greeter('Hello, world!')
+
+      assert.equal(greeter.greet(), '<h1>Hello, world!</h1>', code);
+
+    });
+  });
 });
